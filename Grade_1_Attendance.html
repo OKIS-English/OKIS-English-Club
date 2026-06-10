@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OKIS English Club – Grade 1</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap');
+
+  :root {
+    --pink:    #FF6B9D;
+    --yellow:  #FFD93D;
+    --blue:    #4ECDC4;
+    --purple:  #A855F7;
+    --orange:  #FF9A3C;
+    --green:   #6BCB77;
+    --bg:      #FFF9F0;
+    --card:    #FFFFFF;
+    --text:    #2D2D2D;
+    --muted:   #999;
+    --border:  #E8E0F5;
+    --free:    #FF6B9D;
+    --eng:     #4ECDC4;
+    --cls:     #A855F7;
+    --shadow:  0 4px 16px rgba(0,0,0,0.10);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 24px 16px;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    text-align: center;
+    margin-bottom: 24px;
+  }
+  .header-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--pink), var(--purple));
+    color: #fff;
+    font-family: 'Fredoka One', cursive;
+    font-size: 2.2rem;
+    padding: 10px 36px;
+    border-radius: 60px;
+    letter-spacing: 1px;
+    box-shadow: 0 6px 24px rgba(168,85,247,0.3);
+    margin-bottom: 8px;
+  }
+  .grade-tag {
+    display: inline-block;
+    background: var(--yellow);
+    color: var(--text);
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.1rem;
+    padding: 4px 20px;
+    border-radius: 30px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+  }
+
+  /* ── LEGEND ── */
+  .legend {
+    display: flex;
+    gap: 14px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.82rem;
+    font-weight: 700;
+  }
+  .legend-dot {
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+
+  /* ── CONTROLS ── */
+  .controls {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+  .btn {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1rem;
+    border: none;
+    border-radius: 30px;
+    padding: 9px 26px;
+    cursor: pointer;
+    transition: transform 0.1s, box-shadow 0.1s;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.12);
+  }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,0.15); }
+  .btn:active { transform: translateY(0); }
+  .btn-print  { background: var(--blue);   color: #fff; }
+
+  /* ── TABLE ── */
+  .table-wrap {
+    background: var(--card);
+    border-radius: 20px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    border: 2px solid var(--border);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  thead tr {
+    background: linear-gradient(90deg, var(--purple), var(--pink));
+    color: #fff;
+  }
+  thead th {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1rem;
+    padding: 13px 10px;
+    letter-spacing: 0.5px;
+  }
+  thead th:first-child { border-radius: 0; text-align: left; padding-left: 18px; }
+
+  tbody tr:nth-child(even) { background: #FAF5FF; }
+  tbody tr:nth-child(odd)  { background: #FFFFFF; }
+  tbody tr:hover { background: #F3E8FF; }
+
+  tbody td {
+    padding: 6px 8px;
+    vertical-align: middle;
+    border-bottom: 1px solid var(--border);
+  }
+  tbody td:first-child { padding-left: 14px; }
+
+  /* ── EDITABLE CELLS ── */
+  .cell-name {
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 700;
+    display: inline-block;
+    padding: 5px 8px;
+    color: var(--text);
+  }
+
+  /* pill colours */
+  .pill {
+    display: inline-block;
+    border-radius: 20px;
+    padding: 4px 10px;
+    font-size: 0.82rem;
+    font-weight: 800;
+    text-align: center;
+    white-space: nowrap;
+  }
+  .pill-eng  { background: #D1FAF6; color: #0E8A80; }
+  .pill-cls  { background: #EDE9FE; color: #6D28D9; }
+  .pill-free { background: #FFE4F0; color: #BE185D; }
+  .pill-none { background: #F3F4F6; color: #9CA3AF; }
+
+  /* ── PRINT ── */
+  @media print {
+    @page { size: A4 portrait; margin: 10mm; }
+
+    body {
+      padding: 0;
+      background: #fff;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    .controls, .del-btn { display: none !important; }
+    .header-badge { font-size: 1.6rem; padding: 7px 24px; }
+    .grade-tag    { font-size: 0.9rem; }
+    .legend       { margin-bottom: 10px; }
+
+    .table-wrap { border-radius: 10px; box-shadow: none; border: 1.5px solid #ccc; }
+    thead th  { font-size: 0.82rem; padding: 8px 6px; }
+    tbody td  { padding: 3px 5px; }
+    .cell-name, 
+    .pill     { font-size: 0.68rem; padding: 2px 6px; }
+
+    table { page-break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-badge">⭐ OKIS English Club ⭐</div><br>
+  <div class="grade-tag">🌟 Grade 1 – 1年生</div>
+</div>
+
+<div class="legend">
+  <div class="legend-item"><span class="legend-dot" style="background:#0E8A80"></span> English Room</div>
+  <div class="legend-item"><span class="legend-dot" style="background:#6D28D9"></span> 3rd Grade Classroom</div>
+  <div class="legend-item"><span class="legend-dot" style="background:#BE185D"></span> えらぶ！(Free Choice)</div>
+  <div class="legend-item"><span class="legend-dot" style="background:#9CA3AF"></span> — (Not attending)</div>
+</div>
+
+<div class="controls">
+  <button class="btn btn-print" onclick="loadData()">🔄 Refresh</button>
+  <button class="btn btn-print"  onclick="window.print()">🖨️ Print</button>
+</div>
+
+<div class="table-wrap">
+  <table id="mainTable">
+    <thead>
+      <tr>
+        <th style="width:28%">Name　名前</th>
+        <th style="width:22%">Tuesday　火</th>
+        <th style="width:22%">Wednesday　水</th>
+        <th style="width:22%">Friday　金</th>
+      </tr>
+    </thead>
+    <tbody id="tableBody"></tbody>
+  </table>
+</div>
+
+<script>
+const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSY9fSJCUDj7SwXvMMR8tIkgurqcWtAlv2-MHmkGlkWoli1IPgjk7zZh0JAcYSepw/pub?output=csv';
+const GRADE_NUM = 1;
+
+// Grade header labels as they appear in the CSV
+const GRADE_HEADERS = ['Grade 1', 'Grade 2', 'Grade 3'];
+
+const CYCLE = ['English Room', 'Classroom', 'えらぶ！', '—'];
+
+function pillClass(val) {
+  if (val === 'English Room') return 'pill pill-eng';
+  if (val === 'Classroom')    return 'pill pill-cls';
+  if (val === 'えらぶ！')      return 'pill pill-free';
+  return 'pill pill-none';
+}
+
+function cycleCell(span) {
+  const i = CYCLE.indexOf(span.textContent.trim());
+  const next = CYCLE[(i + 1) % CYCLE.length];
+  span.textContent = next;
+  span.className = pillClass(next);
+}
+
+function buildRow(name, tue, wed, fri) {
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td><span class="cell-name">${name}</span></td>
+    <td><span class="${pillClass(tue)}" onclick="cycleCell(this)">${tue}</span></td>
+    <td><span class="${pillClass(wed)}" onclick="cycleCell(this)">${wed}</span></td>
+    <td><span class="${pillClass(fri)}" onclick="cycleCell(this)">${fri}</span></td>
+  `;
+  return tr;
+}
+
+function parseCSV(text) {
+  // Split into lines, handle 
+
+  return text.split(/?
+/).map(line => {
+    // Simple CSV parse: handle quoted fields
+    const cols = [];
+    let cur = '', inQ = false;
+    for (let i = 0; i < line.length; i++) {
+      const ch = line[i];
+      if (ch === '"') { inQ = !inQ; }
+      else if (ch === ',' && !inQ) { cols.push(cur.trim()); cur = ''; }
+      else { cur += ch; }
+    }
+    cols.push(cur.trim());
+    return cols;
+  });
+}
+
+function extractGradeRows(rows, gradeNum) {
+  // Find the header row for this grade (contains "Grade N")
+  const gradeLabel = 'Grade ' + gradeNum;
+  let inGrade = false;
+  const students = [];
+
+  for (let i = 0; i < rows.length; i++) {
+    const row = rows[i];
+    const first = row[0] || '';
+
+    // Detect grade header rows (merged cell with grade label)
+    if (first.startsWith('Grade ')) {
+      inGrade = first.startsWith(gradeLabel);
+      continue;
+    }
+
+    if (!inGrade) continue;
+
+    // Skip column header row (Name / Tuesday / Wednesday / Friday)
+    if (first.startsWith('Name') || first === '') continue;
+
+    // Skip instruction rows at top
+    if (first.startsWith('[') || first.startsWith('Add names') ||
+        first.startsWith('先生') || first.startsWith('선생')) continue;
+
+    // Student row: col 0 = name, 1 = tue, 2 = wed, 3 = fri
+    const name = row[0] || '';
+    const tue  = row[1] || '';
+    const wed  = row[2] || '';
+    const fri  = row[3] || '';
+
+    // Skip completely empty rows
+    if (!name && !tue && !wed && !fri) continue;
+    // Skip rows with no name
+    if (!name) continue;
+
+    students.push({ name, tue, wed, fri });
+  }
+  return students;
+}
+
+async function loadData() {
+  const tbody = document.getElementById('tableBody');
+  tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#999;padding:16px;">Loading from Google Sheets…</td></tr>';
+
+  try {
+    const res = await fetch(SHEET_URL);
+    if (!res.ok) throw new Error('Network response was not ok');
+    const text = await res.text();
+    const rows = parseCSV(text);
+    const students = extractGradeRows(rows, GRADE_NUM);
+
+    tbody.innerHTML = '';
+    if (students.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#999;padding:16px;">No data found for this grade.</td></tr>';
+      return;
+    }
+    students.forEach(s => tbody.appendChild(buildRow(s.name, s.tue, s.wed, s.fri)));
+  } catch(e) {
+    tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;color:#c00;padding:16px;">
+      ⚠️ Could not load data.<br><small>${e.message}</small><br><br>
+      <small>Make sure the Google Sheet is published to web.</small>
+    </td></tr>`;
+  }
+}
+
+loadData();
+
+</script>
+</body>
+</html>
