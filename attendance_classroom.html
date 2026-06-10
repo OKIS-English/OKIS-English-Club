@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OKIS English Club – Classroom Attendance</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    font-size: 13px;
+    background: #fff;
+    color: #111;
+    margin: 0;
+    padding: 16px 20px;
+  }
+
+  h1 {
+    font-size: 16px;
+    margin: 0 0 4px 0;
+    text-align: center;
+  }
+  .subtitle {
+    text-align: center;
+    font-size: 12px;
+    color: #555;
+    margin-bottom: 10px;
+  }
+
+  /* KEY */
+  .key {
+    display: flex;
+    gap: 18px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+    font-size: 11.5px;
+    font-weight: bold;
+  }
+  .key-item { display: flex; align-items: center; gap: 5px; }
+  .swatch { width: 14px; height: 14px; border-radius: 3px; display: inline-block; flex-shrink: 0; }
+  .sw-g1  { background: #c8e6c9; border: 1px solid #81c784; }
+  .sw-g2  { background: #bbdefb; border: 1px solid #64b5f6; }
+  .sw-g3  { background: #ffe0b2; border: 1px solid #ffb74d; }
+  .sw-fc  { background: #f3e5f5; border: 1px solid #ba68c8; }
+
+  .controls {
+    text-align: center;
+    margin-bottom: 10px;
+  }
+  .btn-print {
+    font-size: 12px;
+    padding: 5px 18px;
+    border: 1px solid #999;
+    border-radius: 4px;
+    background: #f5f5f5;
+    cursor: pointer;
+  }
+  .btn-print:hover { background: #e0e0e0; }
+
+  /* TABLES */
+  .day-section {
+    margin-bottom: 12px;
+  }
+  .day-label {
+    font-size: 13px;
+    font-weight: bold;
+    background: #e0e0e0;
+    padding: 3px 8px;
+    border: 1px solid #bbb;
+    margin-bottom: 0;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+  th {
+    background: #eeeeee;
+    border: 1px solid #ccc;
+    padding: 3px 6px;
+    font-size: 11.5px;
+    text-align: left;
+    font-weight: bold;
+  }
+  td {
+    border: 1px solid #ccc;
+    padding: 3px 6px;
+    font-size: 12px;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  /* Grade row colours */
+  .g1 { background: #c8e6c9; }
+  .g2 { background: #bbdefb; }
+  .g3 { background: #ffe0b2; }
+  /* Free choice override — purple tint */
+  .fc { background: #f3e5f5 !important; }
+
+  .fc-mark {
+    font-weight: bold;
+    color: #7b1fa2;
+  }
+
+  /* Attendance number cell */
+  td.num { text-align: center; width: 38px; }
+
+  .loading { text-align: center; color: #888; padding: 20px; }
+  .error   { color: red; text-align: center; padding: 10px; }
+
+  @media print {
+    @page { size: A4 portrait; margin: 10mm; }
+    .controls { display: none !important; }
+    body { padding: 8px 10px; font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<h1>OKIS English Club — Classroom Attendance</h1>
+<p class="subtitle" id="updatedAt">Loading…</p>
+
+<div class="key">
+  <div class="key-item"><span class="swatch sw-g1"></span> Grade 1</div>
+  <div class="key-item"><span class="swatch sw-g2"></span> Grade 2</div>
+  <div class="key-item"><span class="swatch sw-g3"></span> Grade 3</div>
+  <div class="key-item"><span class="swatch sw-fc"></span> <span class="fc-mark">?</span> Free Choice (may come)</div>
+</div>
+
+<div class="controls">
+  <button class="btn-print" onclick="window.print()">🖨️ Print</button>
+</div>
+
+<div id="output" class="loading">Loading grade files…</div>
+
+<script>
+const DAYS = [
+  { key: 'tue', label: 'Tuesday　火' },
+  { key: 'wed', label: 'Wednesday　水' },
+  { key: 'fri', label: 'Friday　金' },
+];
+
+const GRADE_FILES = [
+  { file: 'grade1.html', grade: 1 },
+  { file: 'grade2.html', grade: 2 },
+  { file: 'grade3.html', grade: 3 },
+];
+
+const TARGET = 'Classroom';
+const FREE   = 'えらぶ！';
+
+// Parse DEFAULT_DATA from raw HTML source
+function parseDefaultData(html) {
+  const match = html.match(/const DEFAULT_DATA\s*=\s*(\[[\s\S]*?\]);/);
+  if (!match) return [];
+  try {
+    // Safe eval via Function
+    return Function('"use strict"; return (' + match[1] + ')')();
+  } catch(e) {
+    return [];
+  }
+}
+
+async function loadGradeData({ file, grade }) {
+  try {
+    const res = await fetch(file);
+    const html = await res.text();
+    const rows = parseDefaultData(html);
+    return rows.map(r => ({ name: r[0], tue: r[1], wed: r[2], fri: r[3], grade }));
+  } catch(e) {
+    console.warn('Could not load', file, e);
+    return [];
+  }
+}
+
+function buildDayTable(allStudents, dayKey) {
+  // Students assigned to Classroom on this day (confirmed or free choice)
+  const assigned = allStudents.filter(s => s[dayKey] === TARGET);
+  const free     = allStudents.filter(s => s[dayKey] === FREE);
+
+  if (assigned.length === 0 && free.length === 0) {
+    return '<p style="color:#888;font-size:11px;margin:2px 0 0 4px;">No students scheduled.</p>';
+  }
+
+  const gradeClass = g => g === 1 ? 'g1' : g === 2 ? 'g2' : 'g3';
+
+  let rows = '';
+  let n = 1;
+
+  assigned.forEach(s => {
+    rows += `<tr class="${gradeClass(s.grade)}">
+      <td class="num">${n++}</td>
+      <td>Grade ${s.grade}</td>
+      <td>${s.name}</td>
+      <td></td>
+    </tr>`;
+  });
+  free.forEach(s => {
+    rows += `<tr class="${gradeClass(s.grade)} fc">
+      <td class="num">${n++}</td>
+      <td>Grade ${s.grade}</td>
+      <td>${s.name}</td>
+      <td class="fc-mark">?</td>
+    </tr>`;
+  });
+
+  return `<table>
+    <thead><tr>
+      <th style="width:38px">#</th>
+      <th style="width:72px">Grade</th>
+      <th>Name</th>
+      <th style="width:30px">FC</th>
+    </tr></thead>
+    <tbody>${rows}</tbody>
+  </table>`;
+}
+
+async function init() {
+  const out = document.getElementById('output');
+  try {
+    const allData = await Promise.all(GRADE_FILES.map(loadGradeData));
+    const allStudents = allData.flat();
+
+    let html = '';
+    DAYS.forEach(day => {
+      html += `<div class="day-section">
+        <div class="day-label">${day.label}</div>
+        ${buildDayTable(allStudents, day.key)}
+      </div>`;
+    });
+
+    out.innerHTML = html;
+    out.className = '';
+    document.getElementById('updatedAt').textContent =
+      'Classroom Sheet — data loaded ' + new Date().toLocaleString('ja-JP');
+  } catch(e) {
+    out.innerHTML = '<div class="error">Error loading data: ' + e.message + '</div>';
+    out.className = '';
+  }
+}
+
+init();
+</script>
+</body>
+</html>

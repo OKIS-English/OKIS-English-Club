@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OKIS English Club – Grade 2</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap');
+
+  :root {
+    --pink:    #FF6B9D;
+    --yellow:  #FFD93D;
+    --blue:    #4ECDC4;
+    --purple:  #A855F7;
+    --orange:  #FF9A3C;
+    --green:   #6BCB77;
+    --bg:      #FFF9F0;
+    --card:    #FFFFFF;
+    --text:    #2D2D2D;
+    --muted:   #999;
+    --border:  #E8E0F5;
+    --shadow:  0 4px 16px rgba(0,0,0,0.10);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 24px 16px;
+  }
+
+  .header { text-align: center; margin-bottom: 24px; }
+  .header-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #FF9A3C, #FF6B9D);
+    color: #fff;
+    font-family: 'Fredoka One', cursive;
+    font-size: 2.2rem;
+    padding: 10px 36px;
+    border-radius: 60px;
+    letter-spacing: 1px;
+    box-shadow: 0 6px 24px rgba(255,107,157,0.3);
+    margin-bottom: 8px;
+  }
+  .grade-tag {
+    display: inline-block;
+    background: var(--orange);
+    color: #fff;
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.1rem;
+    padding: 4px 20px;
+    border-radius: 30px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+  }
+
+  .legend {
+    display: flex; gap: 14px; justify-content: center;
+    flex-wrap: wrap; margin-bottom: 20px;
+  }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 0.82rem; font-weight: 700; }
+  .legend-dot  { width: 14px; height: 14px; border-radius: 50%; display: inline-block; }
+
+  .controls {
+    display: flex; gap: 10px; justify-content: center;
+    flex-wrap: wrap; margin-bottom: 20px;
+  }
+  .btn {
+    font-family: 'Fredoka One', cursive; font-size: 1rem;
+    border: none; border-radius: 30px; padding: 9px 26px;
+    cursor: pointer; transition: transform 0.1s, box-shadow 0.1s;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.12);
+  }
+  .btn:hover  { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,0.15); }
+  .btn:active { transform: translateY(0); }
+  .btn-save   { background: var(--green);  color: #fff; }
+  .btn-print  { background: var(--blue);   color: #fff; }
+  .btn-addrow { background: var(--yellow); color: var(--text); }
+
+  .table-wrap {
+    background: var(--card); border-radius: 20px;
+    box-shadow: var(--shadow); overflow: hidden;
+    border: 2px solid var(--border);
+  }
+  table { width: 100%; border-collapse: collapse; }
+
+  thead tr { background: linear-gradient(90deg, #FF9A3C, #FF6B9D); color: #fff; }
+  thead th {
+    font-family: 'Fredoka One', cursive; font-size: 1rem;
+    padding: 13px 10px; letter-spacing: 0.5px;
+  }
+  thead th:first-child { text-align: left; padding-left: 18px; }
+
+  tbody tr:nth-child(even) { background: #FFF5ED; }
+  tbody tr:nth-child(odd)  { background: #FFFFFF; }
+  tbody tr:hover           { background: #FFE8D4; }
+
+  tbody td { padding: 6px 8px; vertical-align: middle; border-bottom: 1px solid var(--border); }
+  tbody td:first-child { padding-left: 14px; }
+
+  .cell-name {
+    font-family: 'Nunito', sans-serif; font-size: 0.88rem; font-weight: 700;
+    border: 2px solid transparent; border-radius: 8px; padding: 5px 8px;
+    width: 100%; background: transparent; color: var(--text);
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .cell-name:focus { outline: none; border-color: var(--orange); background: #FFF5ED; }
+
+  .pill { display: inline-block; border-radius: 20px; padding: 4px 10px; font-size: 0.82rem; font-weight: 800; text-align: center; white-space: nowrap; cursor: pointer; }
+  .pill-eng  { background: #D1FAF6; color: #0E8A80; }
+  .pill-cls  { background: #EDE9FE; color: #6D28D9; }
+  .pill-free { background: #FFE4F0; color: #BE185D; }
+  .pill-none { background: #F3F4F6; color: #9CA3AF; }
+
+  .del-btn { background: none; border: none; cursor: pointer; font-size: 1rem; color: var(--muted); padding: 4px; border-radius: 6px; transition: color 0.15s; }
+  .del-btn:hover { color: var(--pink); }
+
+  .toast {
+    position: fixed; bottom: 30px; left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--green); color: #fff;
+    font-family: 'Fredoka One', cursive; font-size: 1rem;
+    padding: 12px 32px; border-radius: 40px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    transition: transform 0.3s ease; z-index: 999; pointer-events: none;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  @media print {
+    @page { size: A4 portrait; margin: 10mm; }
+    body { padding: 0; background: #fff; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .controls, .del-btn { display: none !important; }
+    .header-badge { font-size: 1.6rem; padding: 7px 24px; }
+    .grade-tag    { font-size: 0.9rem; }
+    .legend       { margin-bottom: 10px; }
+    .table-wrap   { border-radius: 10px; box-shadow: none; border: 1.5px solid #ccc; }
+    thead th  { font-size: 0.82rem; padding: 8px 6px; }
+    tbody td  { padding: 3px 5px; }
+    .cell-name { font-size: 0.75rem; padding: 3px 5px; }
+    .pill      { font-size: 0.68rem; padding: 2px 6px; }
+    table { page-break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-badge">⭐ OKIS English Club ⭐</div><br>
+  <div class="grade-tag">🌟 Grade 2 – 2年生</div>
+</div>
+
+<div class="legend">
+  <div class="legend-item"><span class="legend-dot" style="background:#0E8A80"></span> English Room</div>
+  <div class="legend-item"><span class="legend-dot" style="background:#6D28D9"></span> 3rd Grade Classroom</div>
+  <div class="legend-item"><span class="legend-dot" style="background:#BE185D"></span> えらぶ！(Free Choice)</div>
+  <div class="legend-item"><span class="legend-dot" style="background:#9CA3AF"></span> — (Not attending)</div>
+</div>
+
+<div class="controls">
+  <button class="btn btn-addrow" onclick="addRow()">＋ Add Student</button>
+  <button class="btn btn-save"   onclick="saveData()">💾 Save</button>
+  <button class="btn btn-print"  onclick="window.print()">🖨️ Print</button>
+</div>
+
+<div class="table-wrap">
+  <table id="mainTable">
+    <thead>
+      <tr>
+        <th style="width:28%">Name　名前</th>
+        <th style="width:22%">Tuesday　火</th>
+        <th style="width:22%">Wednesday　水</th>
+        <th style="width:22%">Friday　金</th>
+        <th style="width:6%"></th>
+      </tr>
+    </thead>
+    <tbody id="tableBody"></tbody>
+  </table>
+</div>
+
+<div class="toast" id="toast">✅ Saved!</div>
+
+<script>
+const STORAGE_KEY = 'okis_grade2';
+const CYCLE = ['English Room', 'Classroom', 'えらぶ！', '—'];
+
+const DEFAULT_DATA = [
+  ['Kyumin Kim',     'English Room', 'Classroom',    '—'],
+  ['Rian Kim',       '—',            '—',            'えらぶ！'],
+  ['Siu Kim',        'Classroom',    'English Room', 'えらぶ！'],
+  ['Yuuha Nakano',   'English Room', 'Classroom',    'えらぶ！'],
+  ['Josuke Tabei',   'Classroom',    'English Room', '—'],
+  ['Ryosuke Sato',   'English Room', 'Classroom',    '—'],
+  ['Emma Yamada',    'English Room', 'Classroom',    'えらぶ！'],
+  ['Yumeno Oda',     'English Room', 'Classroom',    '—'],
+  ['Haku Ueda',      'Classroom',    'English Room', '—'],
+  ['Yuso Lee',       'English Room', 'Classroom',    '—'],
+  ['Seri Iida',      '—',            'えらぶ！',      '—'],
+  ['Yujin Ji',       'Classroom',    'English Room', '—'],
+  ['Shaurya Chhabra','Classroom',    'English Room', '—'],
+  ['Wakaba Hoshi',   'English Room', 'Classroom',    'えらぶ！'],
+];
+
+function pillClass(val) {
+  if (val === 'English Room') return 'pill pill-eng';
+  if (val === 'Classroom')    return 'pill pill-cls';
+  if (val === 'えらぶ！')      return 'pill pill-free';
+  return 'pill pill-none';
+}
+function cycleValue(current) {
+  const i = CYCLE.indexOf(current);
+  return CYCLE[(i + 1) % CYCLE.length];
+}
+function buildRow(data) {
+  const [name, tue, wed, fri] = data;
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td><input class="cell-name" value="${name}" placeholder="Student name"></td>
+    <td><span class="${pillClass(tue)}" onclick="cycleCell(this)">${tue}</span></td>
+    <td><span class="${pillClass(wed)}" onclick="cycleCell(this)">${wed}</span></td>
+    <td><span class="${pillClass(fri)}" onclick="cycleCell(this)">${fri}</span></td>
+    <td><button class="del-btn" onclick="delRow(this)" title="Remove">✕</button></td>
+  `;
+  return tr;
+}
+function cycleCell(span) {
+  const next = cycleValue(span.textContent.trim());
+  span.textContent = next;
+  span.className = pillClass(next);
+}
+function addRow() {
+  document.getElementById('tableBody').appendChild(buildRow(['', '—', '—', '—']));
+}
+function delRow(btn) { btn.closest('tr').remove(); }
+function getTableData() {
+  return Array.from(document.querySelectorAll('#tableBody tr')).map(tr => {
+    const name = tr.querySelector('.cell-name').value;
+    const pills = tr.querySelectorAll('.pill');
+    return [name, pills[0].textContent.trim(), pills[1].textContent.trim(), pills[2].textContent.trim()];
+  });
+}
+function saveData() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(getTableData()));
+  const toast = document.getElementById('toast');
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2200);
+}
+function loadData() {
+  const saved = localStorage.getItem(STORAGE_KEY);
+  const data = saved ? JSON.parse(saved) : DEFAULT_DATA;
+  const tbody = document.getElementById('tableBody');
+  tbody.innerHTML = '';
+  data.forEach(row => tbody.appendChild(buildRow(row)));
+}
+loadData();
+</script>
+</body>
+</html>
